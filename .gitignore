@@ -1,0 +1,5 @@
+data/*.avi
+data/*.tif
+__pycache__/
+venv/
+.venv/
