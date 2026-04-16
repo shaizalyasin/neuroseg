@@ -3,3 +3,4 @@ data/*.tif
 __pycache__/
 venv/
 .venv/
+.ipynb_checkpoints/
