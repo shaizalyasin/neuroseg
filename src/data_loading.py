@@ -6,8 +6,8 @@ import tifffile
 
 
 def load_video(path: str) -> np.ndarray:
-    """Load an AVI video file into a (T, H, W) NumPy array.
-    """
+    """Load an AVI video file into a (T, H, W) NumPy array."""
+
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"Video file not found: {path}")
@@ -15,7 +15,7 @@ def load_video(path: str) -> np.ndarray:
     reader = imageio.get_reader(str(path))
     frames = []
     for frame in reader:
-        # Convert RGB → grayscale if needed (average channels)
+        # Convert RGB → grayscale
         if frame.ndim == 3:
             frame = np.mean(frame, axis=-1)
         frames.append(frame)
@@ -29,8 +29,8 @@ def load_video(path: str) -> np.ndarray:
 
 
 def load_tif(path: str) -> np.ndarray:
-    """Load a TIF file into a NumPy array.
-    """
+    """Load a TIF file into a NumPy array."""
+
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"TIF file not found: {path}")
@@ -40,8 +40,8 @@ def load_tif(path: str) -> np.ndarray:
 
 
 def load_data(path: str) -> np.ndarray:
-    """Detect file format and load into a NumPy array.
-    """
+    """Detect file format and load into a NumPy array."""
+
     path = Path(path)
     suffix = path.suffix.lower()
 
@@ -57,8 +57,8 @@ def load_data(path: str) -> np.ndarray:
 
 
 def summarise(data: np.ndarray, name: str = "") -> None:
-    """Print a summary of a loaded array (shape, dtype, value range).
-    """
+    """Print a summary of a loaded array (shape, dtype, value range)."""
+
     header = f"- {name} -" if name else "- summary -"
     print(header)
     print(f"  shape : {data.shape}")
