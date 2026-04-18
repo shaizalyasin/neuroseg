@@ -21,7 +21,7 @@ cd neuroseg
 ## Usage
 
 ```bash
-python main.py --data --method
+python main.py --data data/...
 ```
 
 ## Project Structure
