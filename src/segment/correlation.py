@@ -2,14 +2,37 @@ import numpy as np
 from scipy.ndimage import gaussian_filter1d, label
 from skimage.filters import threshold_otsu
 from skimage.measure import regionprops
+from tqdm import tqdm
 
 
 def compute_correlation_map(dff: np.ndarray,
                             window: int = 5,
                             lowpass_sigma: float = 2.0) -> np.ndarray:
-    """Build a correlation map from a dF/F stack."""
+    """Build a correlation map from a dF/F stack.
+
+    For every pixel, compute the average Pearson correlation with its
+    neighbors in a (window x window) patch. Neuron bodies appear as
+    bright blobs because their pixels fluctuate in sync.
+
+    Parameters
+    ----------
+    dff : np.ndarray
+        dF/F stack of shape (T, H, W).
+    window : int
+        Size of the neighborhood window (must be odd).
+    lowpass_sigma : float
+        Sigma for temporal low-pass filter before correlation.
+
+    Returns
+    -------
+    np.ndarray
+        Correlation map of shape (H, W), values roughly in [-1, 1].
+    """
 
     T, H, W = dff.shape
+    n_shifts = (window * window) - 1
+    print(f"  Computing correlation map: {H}x{W} image, "
+          f"{window}x{window} window ({n_shifts} neighbor shifts)")
 
     # Step 1: low-pass filter along time axis
     filtered = gaussian_filter1d(dff, sigma=lowpass_sigma, axis=0)
@@ -22,7 +45,7 @@ def compute_correlation_map(dff: np.ndarray,
     std = np.std(filtered, axis=0)
     std[std < 1e-8] = 1e-8
 
-    for dy in range(-pad, pad + 1):
+    for dy in tqdm(range(-pad, pad + 1), desc="Correlation map"):
         for dx in range(-pad, pad + 1):
             if dy == 0 and dx == 0:
                 continue
@@ -63,7 +86,24 @@ def segment_correlation(corr_map: np.ndarray,
                         threshold: float = None,
                         min_area: int = 20,
                         max_area: int = 500) -> np.ndarray:
-    """Threshold a correlation map and label connected components as ROIs."""
+    """Threshold a correlation map and label connected components as ROIs.
+
+    Parameters
+    ----------
+    corr_map : np.ndarray
+        Correlation map of shape (H, W).
+    threshold : float or None
+        Binarization threshold. If None, uses Otsu's method.
+    min_area : int
+        Minimum ROI area in pixels.
+    max_area : int
+        Maximum ROI area in pixels.
+
+    Returns
+    -------
+    np.ndarray
+        Integer label image (H, W) where 0 = background, 1..N = ROI IDs.
+    """
 
     # clean correlation map
     corr_map = np.nan_to_num(corr_map, nan=0.0, posinf=0.0, neginf=0.0)
