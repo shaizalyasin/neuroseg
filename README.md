@@ -32,7 +32,7 @@ src/
 ├── data_preprocessing.py
 ├── segment/
 │   ├── correlation.py
-│   └── cellpose_seg.py
+│   └── cellpose.py
 ├── traces.py
 └── visualize.py
 ```
