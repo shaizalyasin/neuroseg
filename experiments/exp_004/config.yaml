@@ -1,0 +1,10 @@
+dataset: Ca imaging bad (1-320).tif
+data_path: data/Drosophila larvae/Ca imaging bad (1-320).tif
+indicator: cytoplasmic
+method: both
+motion_correct: true
+temporal_bin: null
+dff_window: 30
+cp_model: cyto3
+cp_diameter: null
+notes: ''
