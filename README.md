@@ -2,7 +2,7 @@
 
 Automatic detection and segmentation of active neuron somata in 2D+t calcium imaging data.
 
-## TL;DR
+## Overview
 
 Manual annotation of active neurons in calcium imaging videos is time consuming and subjective.  
 This pipeline provides an automatic, end‑to‑end tool to segment active neurons and extract their activity traces.
