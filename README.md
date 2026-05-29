@@ -4,25 +4,25 @@ Automatic detection and segmentation of active neuron somata in 2D+t calcium ima
 
 ## TL;DR
 
-Manual annotation of active neurons in calcium imaging videos is time‑consuming and subjective.  
+Manual annotation of active neurons in calcium imaging videos is time consuming and subjective.  
 This pipeline provides an automatic, end‑to‑end tool to segment active neurons and extract their activity traces.
 
 ## Background
 
-Neurons fire action potentials – this causes a temporary rise in intracellular calcium.  
+Neurons fire action potentials this causes a temporary rise in intracellular calcium.  
 Calcium imaging uses fluorescent indicators that brighten when calcium increases.  
-Active neurons literally “light up” over time.  
+Active neurons literally light up over time.  
 This pipeline processes such videos to find and track those active cells.
 
 ## Features
 
-- Supports `.tif`, `.avi`, and `.czi` (Zeiss) files.
+- Supports `.tif`, `.avi`, and `.czi` files.
 - Motion correction, temporal binning, and robust `dF/F` calculation.
 - Two segmentation methods:
-  - **Correlation‑based** – uses temporal synchrony of neighbouring pixels.
-  - **Cellpose** – deep‑learning based on morphology.
+  - **Correlation** – uses temporal synchrony of neighbouring pixels.
+  - **Cellpose** – deep learning based on morphology.
 - Full experiment logging: CSV summary + YAML config per run.
-- Evaluation metrics: neuron count, SNR, IoU, and F1 (when ground truth is available).
+- Evaluation metrics: neuron count, SNR, IoU.
 
 ## Installation
 
