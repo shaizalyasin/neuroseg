@@ -5,14 +5,12 @@ def extract_traces(stack: np.ndarray, labels: np.ndarray) -> np.ndarray:
     """Extract mean fluorescence trace for each neuron ROI.
 
     Parameters
-    ----------
     stack : np.ndarray
         dF/F or raw stack of shape (T, H, W).
     labels : np.ndarray
         Integer label image of shape (H, W) where 0 = background.
 
     Returns
-    -------
     np.ndarray
         Traces array of shape (N, T) where N is the number of ROIs.
     """
@@ -36,18 +34,16 @@ def compute_snr(traces: np.ndarray,
     """
     SNR = (peak - baseline) / noise_std
     
-    Baseline is the `baseline_percentile` of the entire trace.
-    Noise is estimated as the standard deviation of the quietest `noise_fraction`
+    Baseline is the baseline_percentile of the entire trace.
+    Noise is estimated as the standard deviation of the quietest noise_fraction
     of the trace (based on moving window), not just the first frames.
     """
     N, T = traces.shape
     baseline = np.percentile(traces, baseline_percentile, axis=1)
     
-    # Find the quietest contiguous segment of length noise_fraction*T
     window = max(1, int(T * noise_fraction))
     noise_std = np.zeros(N)
     for i in range(N):
-        # Rolling window standard deviation
         min_std = np.inf
         for start in range(T - window + 1):
             seg = traces[i, start:start+window]

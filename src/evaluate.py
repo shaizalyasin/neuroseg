@@ -6,14 +6,12 @@ def compute_iou_matrix(labels_a: np.ndarray,
     """Compute pairwise IoU between all ROIs in two label images.
 
     Parameters
-    ----------
     labels_a : np.ndarray
         Integer label image (H, W) from method A.
     labels_b : np.ndarray
         Integer label image (H, W) from method B.
 
     Returns
-    -------
     np.ndarray
         IoU matrix of shape (N_a, N_b) where N_a and N_b are the
         number of ROIs in labels_a and labels_b respectively.
@@ -51,7 +49,6 @@ def match_rois(labels_a: np.ndarray,
     above the threshold, then removes both from further matching.
 
     Parameters
-    ----------
     labels_a : np.ndarray
         Integer label image from method A.
     labels_b : np.ndarray
@@ -60,7 +57,6 @@ def match_rois(labels_a: np.ndarray,
         Minimum IoU to consider a match.
 
     Returns
-    -------
     matched_pairs : list of (int, int)
         List of (id_a, id_b) tuples for matched ROIs.
     only_in_a : list of int
@@ -75,9 +71,7 @@ def match_rois(labels_a: np.ndarray,
     used_a = set()
     used_b = set()
 
-    # Greedy matching by descending IoU
     while True:
-        # Mask out already-used rows/cols
         masked = iou.copy()
         for a in used_a:
             masked[a, :] = 0
@@ -91,7 +85,6 @@ def match_rois(labels_a: np.ndarray,
         idx = np.unravel_index(masked.argmax(), masked.shape)
         a_idx, b_idx = int(idx[0]), int(idx[1])
 
-        # Convert from 0-indexed matrix to 1-indexed label IDs
         matched_pairs.append((a_idx + 1, b_idx + 1))
         used_a.add(a_idx)
         used_b.add(b_idx)
@@ -115,7 +108,6 @@ def compute_f1(labels_pred: np.ndarray,
     ROI with IoU >= threshold. Each ground truth ROI can only match once.
 
     Parameters
-    ----------
     labels_pred : np.ndarray
         Predicted label image (H, W).
     labels_gt : np.ndarray
@@ -124,7 +116,6 @@ def compute_f1(labels_pred: np.ndarray,
         Minimum IoU for a match to count as true positive.
 
     Returns
-    -------
     dict
         Dictionary with keys: 'precision', 'recall', 'f1',
         'true_positives', 'false_positives', 'false_negatives'.

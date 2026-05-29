@@ -4,4 +4,9 @@ __pycache__/
 venv/
 .venv/
 .ipynb_checkpoints/
-results/
+
+# Ignore contents of output directories
+results/*
+!results/.gitkeep
+experiments/*
+!experiments/.gitkeep

@@ -9,12 +9,10 @@ def load_video(path: str) -> np.ndarray:
     """Load an AVI video file into a (T, H, W) NumPy array.
 
     Parameters
-    ----------
     path : str
         Path to the AVI file.
 
     Returns
-    -------
     np.ndarray
         Float32 array of shape (T, H, W).
     """
@@ -42,12 +40,10 @@ def load_tif(path: str) -> np.ndarray:
     """Load a TIF file into a NumPy array.
 
     Parameters
-    ----------
     path : str
         Path to the TIF/TIFF file.
 
     Returns
-    -------
     np.ndarray
         Float32 array, typically shape (T, H, W).
     """
@@ -64,16 +60,14 @@ def load_tif(path: str) -> np.ndarray:
 def load_czi(path: str) -> np.ndarray:
     """Load a CZI or .sec file into a (T, H, W) NumPy array.
 
-    Handles multi‑channel, multi‑Z, and other extra dimensions by
+    Handles multi channel, and other extra dimensions by
     taking the first element along those axes.
 
     Parameters
-    ----------
     path : str
         Path to the CZI or .sec file.
 
     Returns
-    -------
     np.ndarray
         Float32 array of shape (T, H, W).
     """
@@ -123,12 +117,10 @@ def load_data(path: str) -> np.ndarray:
     Supported formats: .avi, .tif/.tiff, .czi, .sec
 
     Parameters
-    ----------
     path : str
         Path to the data file.
 
     Returns
-    -------
     np.ndarray
         Float32 array, typically shape (T, H, W).
     """
@@ -146,6 +138,42 @@ def load_data(path: str) -> np.ndarray:
             f"Unsupported file format '{suffix}'. "
             "Supported formats: .avi, .tif, .tiff, .czi, .sec"
         )
+
+
+def extract_fps(path: str) -> float:
+    """Extract frame rate from file metadata.
+    
+    Returns
+    float or None
+        The detected frame rate in Hz, or None if not found.
+    """
+    path = Path(path)
+    suffix = path.suffix.lower()
+
+    if suffix in (".tif", ".tiff"):
+        try:
+            with tifffile.TiffFile(str(path)) as tif:
+                if tif.imagej_metadata:
+                    md = tif.imagej_metadata
+                    if 'finterval' in md and md['finterval'] > 0:
+                        return 1.0 / md['finterval']
+                    elif 'fps' in md:
+                        return float(md['fps'])
+        except Exception:
+            pass
+
+    elif suffix == ".avi":
+        try:
+            import imageio
+            reader = imageio.get_reader(str(path))
+            meta = reader.get_meta_data()
+            reader.close()
+            if 'fps' in meta and meta['fps'] > 0:
+                return float(meta['fps'])
+        except Exception:
+            pass
+    
+    return None
 
 
 def summarise(data: np.ndarray, name: str = "") -> None:

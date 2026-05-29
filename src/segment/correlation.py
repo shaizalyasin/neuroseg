@@ -15,7 +15,6 @@ def compute_correlation_map(dff: np.ndarray,
     bright blobs because their pixels fluctuate in sync.
 
     Parameters
-    ----------
     dff : np.ndarray
         dF/F stack of shape (T, H, W).
     window : int
@@ -24,7 +23,6 @@ def compute_correlation_map(dff: np.ndarray,
         Sigma for temporal low-pass filter before correlation.
 
     Returns
-    -------
     np.ndarray
         Correlation map of shape (H, W), values roughly in [-1, 1].
     """
@@ -85,11 +83,11 @@ def compute_correlation_map(dff: np.ndarray,
 def segment_correlation(corr_map: np.ndarray,
                         threshold: float = None,
                         min_area: int = 20,
-                        max_area: int = 500) -> np.ndarray:
+                        max_area: int = 500,
+                        indicator: str = "cytoplasmic") -> np.ndarray:
     """Threshold a correlation map and label connected components as ROIs.
 
     Parameters
-    ----------
     corr_map : np.ndarray
         Correlation map of shape (H, W).
     threshold : float or None
@@ -98,14 +96,22 @@ def segment_correlation(corr_map: np.ndarray,
         Minimum ROI area in pixels.
     max_area : int
         Maximum ROI area in pixels.
+    indicator : str
+        'cytoplasmic' or 'nls'. NLS nuclei are small and round, so
+        tighter area and eccentricity filters are applied.
 
     Returns
-    -------
     np.ndarray
         Integer label image (H, W) where 0 = background, 1..N = ROI IDs.
     """
+    # Override area bounds and shape constraints based on indicator
+    if indicator == "nls":
+        max_area = min(max_area, 300)
+        max_eccentricity = 0.85
+        print(f"  NLS mode: max_area={max_area}, max_eccentricity={max_eccentricity}")
+    else:
+        max_eccentricity = 1.0
 
-    # clean correlation map
     corr_map = np.nan_to_num(corr_map, nan=0.0, posinf=0.0, neginf=0.0)
 
     if threshold is None:
@@ -117,15 +123,26 @@ def segment_correlation(corr_map: np.ndarray,
     binary = corr_map > threshold
     labels, n_found = label(binary)
 
-    # remove too-small and too-large regions
+    # Filter by area and eccentricity
     filtered = np.zeros_like(labels)
     new_id = 0
+    n_rejected_area = 0
+    n_rejected_shape = 0
     for region in regionprops(labels):
-        if min_area <= region.area <= max_area:
-            new_id += 1
-            filtered[labels == region.label] = new_id
+        if not (min_area <= region.area <= max_area):
+            n_rejected_area += 1
+            continue
+        if region.eccentricity > max_eccentricity:
+            n_rejected_shape += 1
+            continue
+        new_id += 1
+        filtered[labels == region.label] = new_id
 
     print(f"  Correlation segmentation: {n_found} raw -> {new_id} filtered ROIs "
           f"(threshold={threshold:.3f}, area={min_area}-{max_area})")
+    if n_rejected_area > 0:
+        print(f"    Rejected {n_rejected_area} ROIs by area")
+    if n_rejected_shape > 0:
+        print(f"    Rejected {n_rejected_shape} ROIs by eccentricity (>{max_eccentricity:.2f})")
 
     return filtered

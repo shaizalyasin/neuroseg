@@ -7,7 +7,7 @@ from datetime import datetime
 EXPERIMENTS_CSV = "experiments.csv"
 CSV_HEADER = [
     "run_id", "timestamp", "dataset", "method", "indicator",
-    "motion_correct", "temporal_bin", "dff_window",
+    "motion_correct", "temporal_bin", "fps", "dff_window_sec",
     "cp_model", "cp_diameter", "n_neurons", "mean_snr", "std_snr",
     "global_iou", "n_matched", "notes",
 ]
@@ -44,10 +44,10 @@ def log_experiment(run_id, config, method, n_neurons, snr_values,
         "indicator": config["indicator"],
         "motion_correct": config["motion_correct"],
         "temporal_bin": config.get("temporal_bin", ""),
-        # "bg_sigma": config["bg_sigma"],
-        "dff_window": config.get("dff_window", 30),
-        "cp_model": config.get("cp_model", ""),
-        "cp_diameter": config.get("cp_diameter", ""),
+        "fps": config.get("fps", ""),
+        "dff_window_sec": config.get("dff_window_sec", 30.0),
+        "cp_model": config.get("cp_model", "") if method == "cellpose" else "",
+        "cp_diameter": config.get("cp_diameter", "") if method == "cellpose" else "",
         "n_neurons": n_neurons,
         "mean_snr": f"{mean_snr:.2f}",
         "std_snr": f"{std_snr:.2f}",
